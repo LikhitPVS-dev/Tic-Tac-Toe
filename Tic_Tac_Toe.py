@@ -16,29 +16,46 @@ def main():
 
 #printing board
 def display_board(board):
+    c=0
     
     for i in board:
         for j in i:
-            print('|',j,'  ',end='|')
+            c+=1
+            if j is None:
+                print('|','#',c,end='|')
+            else:
+                print('|',j,'  ',end='|')
         print()
 
 
 #function if the user selects 2 player mode
 def two_player():
-    print('Enter the number 1-9 to select the box')
-    board=[[None,None,None],[None,None,None],[None,None,None]]
-    display_board(board)
-    while (None in board[0] or None in board[1] or None in board[2]) and winner(board):
-        player1=int(input('enter your choice(player 1):'))
-        testing(player1,board,'⭕')
-        if not(winner(board)):
-            print(f"PLAYER 1 WON!!!🥳")
-            break
-        player2=int(input('enter your choice(player 2):'))
-        testing(player2,board,'❌')
-        if not(winner(board)):
-            print("PLAYER 2 WON!!!🥳")
-            break
+    try:
+        print('Enter the number 1-9 to select the box(press Enter to quit)')
+        board=[[None,None,None],[None,None,None],[None,None,None]]
+        display_board(board)
+        while (None in board[0] or None in board[1] or None in board[2]) and winner(board):
+            player1=int(input('enter your choice(player 1):'))
+            testing(player1,board,'⭕')
+            if not(winner(board)):
+                print(f"PLAYER 1 WON!!!🥳")
+                break
+            check_draw(board)
+            player2=int(input('enter your choice(player 2):'))
+            testing(player2,board,'❌')
+            if not(winner(board)):
+                print("PLAYER 2 WON!!!🥳")
+                break
+            check_draw(board)
+    except ValueError:
+        print('You quit the game!!')
+    
+        
+def check_draw(board):
+    if not(None in board[0] or None in board[1] or None in board[2] and winner(board)):
+        print("It's a draw!")
+    
+
 
 
 def testing(player,board,sym):
