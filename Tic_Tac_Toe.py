@@ -1,3 +1,5 @@
+#imports
+import random
 #main function that prints boards
 def main():
     while True:
@@ -8,12 +10,22 @@ def main():
             two_player()
             break
         elif choice==2:
-            ai()
+            while True:
+                choise=int(input("choose your difficuly\n1.easy\n2.medium\n3.hard\n:"))
+                if choise==1:
+                    easy_ai()
+                    break
+                elif choise==2:
+                    print('in implementation')
+                    break
+                elif choise==3:
+                    print('in implementation')
+                    break
+                else:
+                    print('please enter valid input')
             break
         else:
             print('please choose valid choice')
-    
-
 #printing board
 def display_board(board):
     c=0
@@ -26,72 +38,115 @@ def display_board(board):
             else:
                 print('|',j,'  ',end='|')
         print()
-
-
 #function if the user selects 2 player mode
 def two_player():
     try:
         print('Enter the number 1-9 to select the box(press Enter to quit)')
         board=[[None,None,None],[None,None,None],[None,None,None]]
         display_board(board)
-        while (None in board[0] or None in board[1] or None in board[2]) and winner(board):
+        while not (check_draw_winner(board)):
             player1=int(input('enter your choice(player 1):'))
-            testing(player1,board,'⭕')
+            testing(player1,board,'⭕',2)
             if not(winner(board)):
                 print(f"PLAYER 1 WON!!!🥳")
                 break
-            check_draw(board)
+            if check_draw_winner(board):
+                break
+            
             player2=int(input('enter your choice(player 2):'))
-            testing(player2,board,'❌')
+            testing(player2,board,'❌',2)
             if not(winner(board)):
                 print("PLAYER 2 WON!!!🥳")
                 break
-            check_draw(board)
+            check_draw_winner(board)
     except ValueError:
-        print('You quit the game!!')
-    
-        
-def check_draw(board):
+        print('You quit the game!!')   
+def check_draw_winner(board):
     if not(None in board[0] or None in board[1] or None in board[2] and winner(board)):
         print("It's a draw!")
-    
-
-
-
-def testing(player,board,sym):
+        return True
+    return False
+def testing(player,board,sym,play):
     if player>9:
         print('please input a valid choice')
+        if play==1:
+            return False
     else:
         if player<=0:
             print(f'{player} is invalid choice')
+            if play==1:
+                return False
         elif player<=3 and board[0][player-1] is None:
             board[0][player-1]=(sym)
+            if play==1:
+                return True
         elif player<=6 and player>3 and board[1][player-4] is None:
             board[1][player-4]=(sym)
+            if play==1:
+                return True
         elif player<=9 and player>6 and board[2][player-7] is None:
             board[2][player-7]=(sym)
+            if play==1:
+                return True
         else:
-            print("************************************************")
-            print('THE BOX IS ALREADY FILLED !!! TRY ANOTHER BOX')
-            print("************************************************")
-            player_=int(input('try entering another number:'))
-            testing(player_,board,sym)
-            return 0
-    display_board(board)
+            if play==2:
+                print("************************************************")
+                print('THE BOX IS ALREADY FILLED !!! TRY ANOTHER BOX')
+                print("************************************************")
+                player_=int(input('try entering another number:'))
+                display_board(board)
+                testing(player_,board,sym,2)
+            else:
+                return False
 
+    if play==2:        
+        display_board(board)
     
-
+            
+    
 #funt to play with ai
-def ai():
-    
-    #display_board(board)
+def med_ai(board):
     pass
+    
+    
+    
+    
+def easy_ai():
+    try:
+        board=[[None,None,None],[None,None,None],[None,None,None]]
+        display_board(board)
+        while not(check_draw_winner(board)):
+            print('ai is making it\'s move....')
+            var=random.choice([random.randint(1,3),random.randint(4,6),random.randint(7,9)])
+            while(not(testing(var,board,'⭕',1))):
+                var=random.choice([random.randint(1,3),random.randint(4,6),random.randint(7,9)])
+            display_board(board)
+            if not winner(board):
+                print("ai won!")
+                break
+            elif check_draw_winner(board):
+                break
+            
+                
+            player=int(input('Enter your move:'))
+            testing(player,board,'❌',2)
+            if not winner(board):
+                print("you won!")
+                break
+            elif check_draw_winner(board):
+                break
+    except ValueError:
+        print('You quit the game!!')
 
 
+    
+
+    
+
+
+   
 #function to declare winner or loser
 def winner(board):
-    
-    
     d,d_=0,0
     for i in range(3):
         r,r_=0,0
@@ -128,8 +183,6 @@ def winner(board):
             d_+=1
     if (d==3 or d_==3):
         return False
-
-      
     return True
 if __name__=='__main__':
     main()
