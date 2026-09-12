@@ -16,10 +16,10 @@ def main():
                     easy_ai()
                     break
                 elif choise==2:
-                    print('in implementation')
+                    med_ai()
                     break
                 elif choise==3:
-                    print('in implementation')
+                    hard_ai()
                     break
                 else:
                     print('please enter valid input')
@@ -36,7 +36,7 @@ def display_board(board):
             if j is None:
                 print('|','#',c,end='|')
             else:
-                print('|',j,'  ',end='|')
+                print('|',j,end='|')
         print()
 #function if the user selects 2 player mode
 def two_player():
@@ -102,32 +102,48 @@ def testing(player,board,sym,play):
     if play==2:        
         display_board(board)
     
-            
+def winning_move(board):
+    for i in range(3):
+        for j in range(3):
+            if board[i][j] is None:
+                board[i][j]='⭕'
+                if not(winner(board)): 
+                    return True
+                else:
+                    board[i][j]=None
+    return False
     
-#funt to play with ai
-def med_ai(board):
-    pass
-    
-    
-    
-    
+def blocking_move(board):
+    for i in range(3):
+        for j in range(3):
+            if board[i][j] is None:
+                board[i][j]='❌'
+                if not(winner(board)):
+                    board[i][j]='⭕'
+                    return True
+                else:
+                    board[i][j]=None
+    return False
+
+
+def random_move(board):
+    var=random.randint(1,9)
+    while(not(testing(var,board,'⭕',1))):
+        var=random.randint(1,9)
+    return var
 def easy_ai():
     try:
         board=[[None,None,None],[None,None,None],[None,None,None]]
         display_board(board)
         while not(check_draw_winner(board)):
             print('ai is making it\'s move....')
-            var=random.choice([random.randint(1,3),random.randint(4,6),random.randint(7,9)])
-            while(not(testing(var,board,'⭕',1))):
-                var=random.choice([random.randint(1,3),random.randint(4,6),random.randint(7,9)])
+            var=random_move(board)
             display_board(board)
             if not winner(board):
                 print("ai won!")
                 break
             elif check_draw_winner(board):
                 break
-            
-                
             player=int(input('Enter your move:'))
             testing(player,board,'❌',2)
             if not winner(board):
@@ -137,14 +153,37 @@ def easy_ai():
                 break
     except ValueError:
         print('You quit the game!!')
+def med_ai():
+    try:
+        board=[[None,None,None],[None,None,None],[None,None,None]]
+        display_board(board)
+        while not(check_draw_winner(board)):
+            print('ai is making\'s move....')
+            if blocking_move(board):
+                display_board(board)
+            elif winning_move(board):
+                display_board(board)
+            else:
+                random_move(board)
+                display_board(board)
+            if not(winner(board)):
+                print('ai won')
+                break
+            elif check_draw_winner(board):
+                break
+            player=int(input('Enter your move:'))
+            testing(player,board,'❌',2)
+            if not winner(board):
+                print("you won!")
+                break
+            elif check_draw_winner(board):
+                break
+    except ValueError:
+        print('You quit the game!!')
+def hard_ai():
+    pass
 
 
-    
-
-    
-
-
-   
 #function to declare winner or loser
 def winner(board):
     d,d_=0,0
