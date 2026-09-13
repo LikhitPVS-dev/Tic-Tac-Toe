@@ -47,23 +47,24 @@ def two_player():
         while not (check_draw_winner(board)):
             player1=int(input('enter your choice(player 1):'))
             testing(player1,board,'⭕',2)
-            if not(winner(board)):
+            if not(winner(board,'⭕')):
                 print(f"PLAYER 1 WON!!!🥳")
                 break
             if check_draw_winner(board):
+                print("It\'s a draw!!!")
                 break
             
             player2=int(input('enter your choice(player 2):'))
             testing(player2,board,'❌',2)
-            if not(winner(board)):
+            if not(winner(board,'❌')):
                 print("PLAYER 2 WON!!!🥳")
                 break
-            check_draw_winner(board)
+            if check_draw_winner(board):
+                print("It\'s a draw!!!")
     except ValueError:
         print('You quit the game!!')   
 def check_draw_winner(board):
-    if not(None in board[0] or None in board[1] or None in board[2] and winner(board)):
-        print("It's a draw!")
+    if not((None in board[0] or None in board[1] or None in board[2]) and (winner(board,'❌') or winner(board,'⭕'))):
         return True
     return False
 def testing(player,board,sym,play):
@@ -107,7 +108,7 @@ def winning_move(board):
         for j in range(3):
             if board[i][j] is None:
                 board[i][j]='⭕'
-                if not(winner(board)): 
+                if not(winner(board,'⭕')): 
                     return True
                 else:
                     board[i][j]=None
@@ -118,14 +119,12 @@ def blocking_move(board):
         for j in range(3):
             if board[i][j] is None:
                 board[i][j]='❌'
-                if not(winner(board)):
+                if not(winner(board,'❌')):
                     board[i][j]='⭕'
                     return True
                 else:
                     board[i][j]=None
     return False
-
-
 def random_move(board):
     var=random.randint(1,9)
     while(not(testing(var,board,'⭕',1))):
@@ -139,17 +138,19 @@ def easy_ai():
             print('ai is making it\'s move....')
             var=random_move(board)
             display_board(board)
-            if not winner(board):
+            if not winner(board,'⭕'):
                 print("ai won!")
                 break
             elif check_draw_winner(board):
+                print("It\'s a draw!!!")
                 break
             player=int(input('Enter your move:'))
             testing(player,board,'❌',2)
-            if not winner(board):
+            if not winner(board,'❌'):
                 print("you won!")
                 break
             elif check_draw_winner(board):
+                print("It\'s a draw!!!")
                 break
     except ValueError:
         print('You quit the game!!')
@@ -159,68 +160,130 @@ def med_ai():
         display_board(board)
         while not(check_draw_winner(board)):
             print('ai is making\'s move....')
-            if blocking_move(board):
+            if winning_move(board):
                 display_board(board)
-            elif winning_move(board):
+            elif blocking_move(board):
                 display_board(board)
             else:
                 random_move(board)
                 display_board(board)
-            if not(winner(board)):
+            if not(winner(board,'⭕')):
                 print('ai won')
                 break
             elif check_draw_winner(board):
+                print("It\'s a draw!!!")
                 break
             player=int(input('Enter your move:'))
             testing(player,board,'❌',2)
-            if not winner(board):
+            if not winner(board,'❌'):
                 print("you won!")
                 break
             elif check_draw_winner(board):
+                print("It\'s a draw!!!")
                 break
     except ValueError:
         print('You quit the game!!')
+def minimax_ai(board,ai_turn):
+    if not(winner(board,'⭕')):
+        return 10
+    elif not(winner(board,'❌')):
+        return -10
+    elif check_draw_winner(board):
+        return 0
+    ls=[]
+    c=0
+    for i in range(3):
+        for j in range(3):
+            c+=1
+            if board[i][j] is None:
+                ls.append(c)
+    scores=[]
+    
+    for i in ls:
+        new_board=[board[0].copy(),board[1].copy(),board[2].copy()]
+        if ai_turn:
+            testing(i,new_board,'⭕',1)
+        else:
+            testing(i,new_board,'❌',1)
+        scores.append(minimax_ai(new_board,not(ai_turn)))
+    if ai_turn:
+        return max(scores)
+    else:
+        return min(scores)
+
+
+
+
+
 def hard_ai():
-    pass
+    try:
+        board=[[None,None,None],[None,None,None],[None,None,None]]
+        display_board(board)
+        while not(check_draw_winner(board)):
+            print('ai is making\'s move....')
+            scores=[]
+            c=0
+            ls=[]
+            for i in range(3):
+                for j in range(3):
+                    c+=1
+                    if board[i][j] is None:
+                        ls.append(c)
+            for move in ls:
+                new_board=[board[0].copy(),board[1].copy(),board[2].copy()]
+                testing(move,new_board,'⭕',1)
+                score=minimax_ai(new_board,False)
+                scores.append(score)
+            best_move = ls[scores.index(max(scores))]
+            testing(best_move, board, '⭕', 1)
+            display_board(board)
+            if not(winner(board,'⭕')):
+                print('ai won')
+                break
+            elif check_draw_winner(board):
+                print("It\'s a draw!!!")
+                break
+            player=int(input('Enter your move:'))
+            testing(player,board,'❌',2)
+            if not winner(board,'❌'):
+                print("you won!")
+                break
+            elif check_draw_winner(board):
+                print("It\'s a draw!!!")
+                break
+    except ValueError:
+        print('You quit the game!!')
 
 
 #function to declare winner or loser
-def winner(board):
-    d,d_=0,0
+def winner(board,sym):
+    d=0
     for i in range(3):
-        r,r_=0,0
+        r=0
         for j in range(3):
-            if board[i][j]=='❌':
+            if board[i][j]==sym:
                 r+=1
-            elif board[i][j]=='⭕':
-                r_+=1
-        if (r==3 or r_==3):
+        if (r==3):
             return False
     
     for i in range(3):
-        c,c_=0,0
+        c=0
         for j in range(3):
-            if board[j][i]=='❌':
+            if board[j][i]==sym:
                 c+=1
-            elif board[j][i]=='⭕':
-                c_+=1
-        if (c==3 or c_==3):
+        if (c==3 ):
             return False
 
     for i in range(3):
-        if board[i][i]=='❌':
+        if board[i][i]==sym:
             d+=1
-        elif board[i][i]=='⭕':
-            d_+=1
-    if (d==3 or d_==3):
+    if (d==3):
         return False
-    d,d_=0,0
+    d=0
     for i in range(3):
-        if board[2-i][i]=='❌':
+        if board[2-i][i]==sym:
             d+=1
-        elif board[2-i][i]=='⭕':
-            d_+=1
-    if (d==3 or d_==3):
+    if (d==3):
         return False
     return True
 if __name__=='__main__':
